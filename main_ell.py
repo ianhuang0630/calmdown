@@ -13,7 +13,7 @@ class ScoreAgent:
 
     _validator = InteractionScore.model_validate_json  # hack that allows us to use the pydantic model's validation function without this class existing outside of our agent definition
 
-    persona = ell.system(
+    persona = (
         f"You're a couples therapist listening in on the conversation outlined in this script. You rate interactions on a scale of 1-100. You must absolutely respond in this format with no exceptions.\n{InteractionScore.model_json_schema()}"
     )
 
@@ -26,7 +26,7 @@ class ScoreAgent:
             f"{script}\n"
             f"On a scale of 1-100 (1=strongly disagree, 100=strongly agree), how much  would you agree with the following statement: {goal}\n"
         )
-        return [self.persona, ell.user(prompt)]
+        return [ell.system(self.persona), ell.user(prompt)]
 
     # TODO: this is pretty ugly, but I wanted to keep the schema within this class so that everything is in one place
     def score_interaction(self, script: str, ai_name: str, player_name: str, goal: str):
@@ -40,7 +40,7 @@ class ScriptAgent:
 
     _validator = ScriptContinuation.model_validate_json
 
-    persona = ell.system(
+    persona = (
         f"You're a professional script writer. You're given a description of the character, and a current script. Complete the next line of the script in the most realistic way possible. You must absolutely respond in this format with no exceptions.\n{ScriptContinuation.model_json_schema()}"
     )
 
@@ -57,7 +57,7 @@ class ScriptAgent:
             f"SCRIPT:{script}\n"
             f"{self.speaker}:"
         )
-        return [self.persona, ell.user(prompt)]
+        return [ell.system(self.persona), ell.user(prompt)]
 
     def write(self, profile: str, script: str):
         message = self._write(profile, script)
